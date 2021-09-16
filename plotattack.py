@@ -45,7 +45,19 @@ def get_census_info():
 
   return census_pd
 
+
+def plot_correlation_matrix(df):
+  f = plt.figure(figsize=(12, 10))
+  plt.matshow(df.corr(), fignum=f.number)
+  plt.xticks(range(df.select_dtypes(['number']).shape[1]), df.select_dtypes(['number']).columns, fontsize=10, rotation=45, ha='left')
+  plt.yticks(range(df.select_dtypes(['number']).shape[1]), df.select_dtypes(['number']).columns, fontsize=10)
+  cb = plt.colorbar()
+  cb.ax.tick_params(labelsize=12)
+  plt.title('Correlation Matrix', fontsize=14)
+  plt.tight_layout()
+  plt.show()
+
+
 if __name__ == '__main__':
   df = get_census_info()
-  print(df.head())
-
+  plot_correlation_matrix(df)
