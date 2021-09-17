@@ -60,4 +60,6 @@ def plot_correlation_matrix(df):
 
 if __name__ == '__main__':
   df = get_census_info()
+  print('starting to plot stuff')
   plot_correlation_matrix(df)
+  print('ok we\'re all finished')
