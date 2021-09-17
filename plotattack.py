@@ -13,7 +13,7 @@ def get_census_info():
   census_data = c.acs5.get(("NAME", "B19013_001E", "B01003_001E", "B01002_001E",
                             "B19301_001E",
                             "B17001_002E",
-                            "B23025_005E"), {'for': 'state:*'})
+                            "B23025_005E"), {'for': 'zip code tabulation area:*'})
 
   # Convert to DataFrame
   census_pd = pd.DataFrame(census_data)
@@ -26,9 +26,10 @@ def get_census_info():
     "B19301_001E": "Per Capita Income",
     "B17001_002E": "Poverty Count",
     "B23025_005E": "Unemployment Count",
-    "NAME": "Name", "state": "State"})
+    "NAME": "Name", "zip code tabulation area": "Zipcode"})
 
   # Add in Poverty Rate (Poverty Count / Population)
+  census_pd.dropna(inplace=True)
   census_pd["Poverty Rate"] = 100 * \
                               census_pd["Poverty Count"].astype(
                                 int) / census_pd["Population"].astype(int)
@@ -39,9 +40,9 @@ def get_census_info():
                                      int) / census_pd["Population"].astype(int)
 
   # Final DataFrame
-  census_pd = census_pd[["Name", "Population", "Median Age", "Household Income",
+  census_pd = census_pd[["Zipcode", "Population", "Median Age", "Household Income",
                          "Per Capita Income", "Poverty Count", "Poverty Rate", "Unemployment Rate"]]
-  census_pd.set_index('Name', inplace=True)
+  census_pd.set_index('Zipcode', inplace=True)
 
   return census_pd
 
@@ -58,8 +59,32 @@ def plot_correlation_matrix(df):
   plt.show()
 
 
+def plot_scatter_matrix(df):
+  fig, axes = plt.subplots(len(df.columns), len(df.columns), figsize=(10, 10))
+  for i in range(axes.shape[0]):
+    for j in range(axes.shape[1]):
+      ax = axes[i, j]
+      ax.set_xticks([])
+      ax.set_yticks([])
+
+      if j > i:
+        ax.axis('off')
+      else:
+        if j == 0:
+          ax.set_ylabel(df.columns[i], fontsize=9)
+        if i == len(df.columns) - 1:
+          ax.set_xlabel(df.columns[j], fontsize=9)
+
+        ax.scatter(df[df.columns[i]], df[df.columns[j]], alpha=0.05, s=3)
+
+  plt.tight_layout()
+  plt.show()
+
+
+
 if __name__ == '__main__':
   df = get_census_info()
   print('starting to plot stuff')
   plot_correlation_matrix(df)
+  plot_scatter_matrix(df)
   print('ok we\'re all finished')
